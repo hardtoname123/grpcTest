@@ -35,9 +35,9 @@ func main() {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer conn.Close()
-	c := pb.NewGreeterClient(conn)
-	//testRpc(c)
-	testStream(c)
+	client := pb.NewGreeterClient(conn)
+	//testRpc(client)
+	testStream(client)
 }
 
 func testRpc(c pb.GreeterClient) {
@@ -73,7 +73,7 @@ func testStream(c pb.GreeterClient) {
 			if err != nil {
 				log.Fatalf("c.SayManyHello stream.Recv() failed, err: %v", err)
 			}
-			fmt.Printf("AI：%s\n", in.GetMessage())
+			fmt.Printf("SERVER：%s\n", in.GetMessage())
 		}
 	}()
 	// 从标准输入获取用户输入

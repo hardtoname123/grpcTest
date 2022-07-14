@@ -29,7 +29,8 @@ func (s *server) SayManyHello(stream pb.Greeter_SayManyHelloServer) error {
 		if err != nil {
 			return err
 		}
-		// 反转
+
+		// 将收到的字符串反转并返回
 		reverse := func(s string) string {
 			runes := []rune(s)
 			for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
@@ -37,12 +38,19 @@ func (s *server) SayManyHello(stream pb.Greeter_SayManyHelloServer) error {
 			}
 			return string(runes)
 		}
-		reply := reverse(in.GetName()) // 对收到的数据做些处理
+		// 如果接受到"shutdown",停止接受流请求
+		if in.GetName() == "shutdown" {
+			return nil
+		}
 
-		// 返回流式响应
-		if err := stream.Send(&pb.HelloReply{Message: reply}); err != nil {
+		// 创建响应并返回
+		reply := &pb.HelloReply{
+			Message: reverse(in.GetName()),
+		}
+		if err := stream.Send(reply); err != nil {
 			return err
 		}
+
 	}
 }
 
@@ -62,9 +70,3 @@ func main() {
 		return
 	}
 }
-
-//.\protoc\bin\protoc.exe
-//--plugin=protoc-gen-go=.\protoc\bin\windows_x64\protoc-gen-go.exe
-//--plugin=protoc-gen-grpc=.\protoc\bin\windows_x64\protoc-gen-go-grpc.exe
-//--go_out=.\pb .\pb\example.proto
-//--grpc_out=.\pb .\pb\example.proto
